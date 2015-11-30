@@ -3,9 +3,9 @@ import string
 # handle file open
 filename = "romeo.txt"
 try:
-    fp = open( filename, "r")
+    fp = open(filename, "r")
 except Exception as e:
-    print  "File cannot be opened: ", filename
+    print "File cannot be opened: ", filename
     exit()
 
 # declare structures
