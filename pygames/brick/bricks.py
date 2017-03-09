@@ -26,11 +26,25 @@ sx, sy = (ballSpeed, ballSpeed)
 ballRect.topleft = (bx, by)
 
 # brick init
+brick = pygame.image.load('assets/brick.png')
+bricks = []
+# create the positions of each of the bricks
 
+for y in range(5):
+    brickY = ( y * 24 ) + 100
+    for x in range(10):
+        brickX = ( x * 31 ) + 245
+        bricks.append(Rect(brickX, brickY, brick.get_width(),
+                                        brick.get_height()))
+
+
+    
 while True:
     mainSurface.fill(black)
     
     # brick draw
+    for b in bricks:
+        mainSurface.blit(brick, b)
     
     # bat and ball draw
     mainSurface.blit(bat, batRect)
@@ -88,7 +102,21 @@ while True:
         by = playerY - 8
         sy *= -1
 
-        
+
+    # brick and ball collision
+    brickHitIndex = ballRect.collidelist(bricks)
+    if brickHitIndex >= 0:
+        hb = bricks[brickHitIndex]
+
+        mx = bx + 4
+        my = by + 4
+        if mx > hb.x +hb.width or mx < hb.x:
+            sx *= -1
+        else:
+            sy *= -1
+
+        del(bricks[brickHitIndex])
+    
     pygame.display.update()
     
     fpsClock.tick(30)
