@@ -80,9 +80,12 @@ while True:
         sy *= -1
         
     # ensure that teh bottom boundary of the srcreen reflects the ball
+    # if ball hits the bottom set it as out of bounds and reset it
     if by >= 600 - 8:
-        by = 600 - 8
-        sy *= -1
+        ballServed = False
+        bx, by = (24, ballStartY)
+        ballRect.topleft = (bx, by )
+        
 
     # the sides of the screen will reflect on the x axis
     # reflect the ball on the left hand edge
