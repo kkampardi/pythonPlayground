@@ -28,6 +28,7 @@ ballRect.topleft = (bx, by)
 # brick init
 brick = pygame.image.load('assets/brick.png')
 bricks = []
+
 # create the positions of each of the bricks
 
 for y in range(5):
@@ -40,6 +41,7 @@ for y in range(5):
 
     
 while True:
+    # each time the loop is executed we clear the main surface
     mainSurface.fill(black)
     
     # brick draw
@@ -58,12 +60,12 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == MOUSEMOTION:
-            mousex, mousey, event.pos
+            mousex, mousey = event.pos
             if ( mousex < 800 - 55):
                 batRect.topleft = (mousex, playerY)
             else:
                 batRect.topleft = (800 - 55, playerY)
-        elif event.type == MOUSEBUTTONUP: # press the left mouse button to serve the ball
+        elif event.type == MOUSEBUTTONUP:
             if not ballServed:
                 ballServed = True
                 
