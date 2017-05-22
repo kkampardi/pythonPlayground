@@ -3,12 +3,10 @@ from requests import HTTPError
 import gzip, json
 import apt
 import sys
-from pprint import pprint
-from collections import OrderedDict
 
 source_url = 'https://udd.debian.org/how-can-i-help.json.gz'
 
-def download_gz(url):
+def download_gz(source_url):
     """ get the gz and store it to a temporary file"""
     try:
         req = requests.get(source_url, stream=True)
@@ -27,30 +25,28 @@ def download_gz(url):
                 outfile.write(line)
                 json_data = json.loads(line.decode("utf-8"))
 
-
-    # get system apt packages
-    cache = apt.Cache()
-
-    system_pkg = []
-    for pkg in cache:
-        #print(pkg)
-        system_pkg.append(pkg)
-
-
-    fb_pkg = []
-    for i in range(1,len(json_data)):
+    # store help items in a python dict
+    fb_pkg = {}
+    for i in range(1, len(json_data)):
         for name, subdict in json_data[i].items():
             if name == "package":
-                print json_data[i]["package"]
-                fb_pkg.append(json_data[i]["package"].decode("utf8"))
+                # print json_data[i]["package"]
+                fb_pkg.append(json_data[i]["package"])
             elif name == "packages":
                 for package in json_data[i]["packages"]:
-                    print package
+                    fb_pkg.append(package)
 
-    #common = set(system_pkg).intersection(fb_pkg)
-    #print (system_pkg)
-    #print (fb_pkg)
-    #print (common)
 
+    cache = apt.Cache()
+    system_pkg = []
+    for pkg in cache:
+        if cache[pkg.name].is_installed:
+            compare(pkg.name, fb_pkg)
+
+
+def compare(package_name, help_items):
+    for item in help_items:
+        if package_name == item:
+            print ("%s is equal to %s!" %( package_name,item))
 
 download_gz(source_url)
