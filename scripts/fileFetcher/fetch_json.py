@@ -1,15 +1,16 @@
 import requests
-from requests import HTTPError
+from requests import HTTPError, RequestException
 import gzip, json
 import apt
 import sys
+from pprint import pprint
 
-source_url = 'https://udd.debian.org/how-can-i-help.json.gz'
+hi_url = 'https://udd.debian.org/how-can-i-help.json.gz'
 
-def download_gz(source_url):
+def download_gz(hi_url):
     """ get the gz and store it to a temporary file"""
     try:
-        req = requests.get(source_url, stream=True)
+        req = requests.get(hi_url, stream=True)
     except RequestException as e:
         print(e.reason)
 
@@ -23,30 +24,37 @@ def download_gz(source_url):
         with open('files/output.json', 'wb') as outfile:
             for line in infile:
                 outfile.write(line)
-                json_data = json.loads(line.decode("utf-8"))
+                hi = json.loads(line.decode("utf-8"))
 
-    # store help items in a python dict
-    fb_pkg = {}
-    for i in range(1, len(json_data)):
-        for name, subdict in json_data[i].items():
-            if name == "package":
-                # print json_data[i]["package"]
-                fb_pkg.append(json_data[i]["package"])
-            elif name == "packages":
-                for package in json_data[i]["packages"]:
-                    fb_pkg.append(package)
-
-
+    """ get system installed packages  """
     cache = apt.Cache()
-    system_pkg = []
+    packages = []
     for pkg in cache:
         if cache[pkg.name].is_installed:
-            compare(pkg.name, fb_pkg)
+            packages.append(pkg.name)
 
 
-def compare(package_name, help_items):
-    for item in help_items:
-        if package_name == item:
-            print ("%s is equal to %s!" %( package_name,item))
+    """ filter the hi list of dicts so only installed packages remain  """
+    hi_filtered = []
+    for i in range(1, len(hi)):
+        for key, value in hi[i].items():
+            if key == "packages":
+                if value in packages:
+                    hi_filtered.append(hi[i])
+            if key == "package":
+                if value in packages:
+                    hi_filtered.append(hi[i])
 
-download_gz(source_url)
+    # print (len(hi))
+    # print (len(hi_filtered))
+    # print (hi_filtered)
+
+    """ support filtering by type
+    for i in range(1, len(hi_filtered)):
+        for name, package in hi_filtered[i].items():
+            print (name, package)
+            if hi_filtered[i]['type'] == 'gift':
+                print (hi_filtered[i])
+    """
+
+download_gz(hi_url)
