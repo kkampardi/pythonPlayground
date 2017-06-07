@@ -25,32 +25,33 @@ def get_data(hi_url):
         with open('files/output.json', 'wb') as outfile:
             for line in infile:
                 outfile.write(line)
-                hi = json.loads(line.decode("utf-8"))
+                data = json.loads(line.decode("utf-8"))
+    return data
 
-    return hi
-
-def download_gz():
+def get_help_items():
 
     hi = get_data(hi_url)
 
     """ get system installed packages  """
     cache = apt.Cache()
-    packages = []
+    system_packages = []
     for pkg in cache:
         if cache[pkg.name].is_installed:
-            packages.append(pkg.name)
+            system_packages.append(pkg.name)
 
 
-    """ filter the hi list of dicts so only installed packages remain  """
     hi_filtered = []
     for i in range(1, len(hi)):
         for key, value in hi[i].items():
             if key == "packages":
-                print (key, value)
+                for package in value:
+                    if package in system_packages:
+                        hi_filtered.append(hi[i])
+            elif key == "package":
+                if value in system_packages:
+                    hi_filtered.append(hi[i])
 
-    for i in range(1, len(hi_filtered)):
-        for key, value in hi_filtered[i].items():
-                pass
+    print(len(hi))
+    print(len(hi_filtered))
 
-
-download_gz()
+get_help_items()
