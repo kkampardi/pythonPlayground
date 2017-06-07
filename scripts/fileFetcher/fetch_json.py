@@ -7,7 +7,8 @@ from pprint import pprint
 
 hi_url = 'https://udd.debian.org/how-can-i-help.json.gz'
 
-def download_gz(hi_url):
+
+def get_data(hi_url):
     """ get the gz and store it to a temporary file"""
     try:
         req = requests.get(hi_url, stream=True)
@@ -26,6 +27,12 @@ def download_gz(hi_url):
                 outfile.write(line)
                 hi = json.loads(line.decode("utf-8"))
 
+    return hi
+
+def download_gz():
+
+    hi = get_data(hi_url)
+
     """ get system installed packages  """
     cache = apt.Cache()
     packages = []
@@ -39,22 +46,11 @@ def download_gz(hi_url):
     for i in range(1, len(hi)):
         for key, value in hi[i].items():
             if key == "packages":
-                if value in packages:
-                    hi_filtered.append(hi[i])
-            if key == "package":
-                if value in packages:
-                    hi_filtered.append(hi[i])
+                print (key, value)
 
-    # print (len(hi))
-    # print (len(hi_filtered))
-    # print (hi_filtered)
-
-    """ support filtering by type
     for i in range(1, len(hi_filtered)):
-        for name, package in hi_filtered[i].items():
-            print (name, package)
-            if hi_filtered[i]['type'] == 'gift':
-                print (hi_filtered[i])
-    """
+        for key, value in hi_filtered[i].items():
+                pass
 
-download_gz(hi_url)
+
+download_gz()
