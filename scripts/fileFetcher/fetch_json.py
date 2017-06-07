@@ -32,7 +32,7 @@ def get_help_items():
 
     hi = get_data(hi_url)
 
-    """ get system installed packages  """
+    """ Get system installed packages  """
     cache = apt.Cache()
     system_packages = []
     for pkg in cache:
@@ -40,6 +40,7 @@ def get_help_items():
             system_packages.append(pkg.name)
 
 
+    """ Filter the list of help items against the system installed packages list """
     hi_filtered = []
     for i in range(1, len(hi)):
         for key, value in hi[i].items():
@@ -53,5 +54,29 @@ def get_help_items():
 
     print(len(hi))
     print(len(hi_filtered))
+
+    """ display the filtered data related info """
+    for item in hi_filtered:
+        if item["type"] == "wnpp":
+            # puts " - #{r['source']} - https://bugs.debian.org/#{r['wnppbug']} - #{wnpptype(r['wnpptype'])}"
+            print("- {} - #https://bugs.debian.org/#{} - #bug type {} ".format(item['source'], item['wnppbug'], item['wnpptype']))
+        elif item["type"] == "gift":
+            # puts " - #{r['package']} - https://bugs.debian.org/#{r['bug']} - #{r['title']}"
+            print("- {} - https://bugs.debian.org/#{} - #{} ".format(item['package'], item['bug'],
+                                                                           item['title']))
+        elif item["type"] == "testing-autorm":
+            puts
+            " - #{r['source']} - https://tracker.debian.org/pkg/#{r['source']} - removal on #{Time.at(r['removal_time']).to_date.to_s}#{bugs}"
+            print("- {} - https://bugs.debian.org/#{} - #{} ".format(item['package'], item['bug'],
+                                                                    item['title']))
+        elif item["type"] == "rfs":
+            #puts " - #{r['source']} - https://bugs.debian.org/#{r['id']} - #{r['title']}"
+            print("- #{} - https://bugs.debian.org/#{} - #{} ".format(item['source'], item['id'],
+                                                                   item['title']))
+        elif item["type"] == "no-testing":
+            # puts " - #{r['package']} - https://tracker.debian.org/pkg/#{r['id']}"
+            print("- {} - https://bugs.debian.org/#{} ".format(item['package'], item['source']))
+        elif item["type"] == "infra":
+            pass
 
 get_help_items()
