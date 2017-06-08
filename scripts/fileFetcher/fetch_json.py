@@ -1,9 +1,8 @@
 import requests
 from requests import HTTPError, RequestException
 import gzip, json
-import apt
-import sys
-from pprint import pprint
+import apt, os
+import pprint
 
 hi_url = 'https://udd.debian.org/how-can-i-help.json.gz'
 
@@ -20,12 +19,12 @@ def get_data(hi_url):
         for block in req.iter_content(1024):
             handle.write(block)
 
-    """ uncompress the tmp gz to a JSON tmp file"""
+    """ uncompress the tmp gz to a list"""
     with gzip.open('files/delete_me.gz', 'rb') as infile:
-        with open('files/output.json', 'wb') as outfile:
-            for line in infile:
-                outfile.write(line)
-                data = json.loads(line.decode("utf-8"))
+        for line in infile:
+            data = json.loads(line.decode("utf-8"))
+
+    #os.unlink('files/delete_me.gz')
     return data
 
 def get_help_items():
@@ -52,31 +51,65 @@ def get_help_items():
                 if value in system_packages:
                     hi_filtered.append(hi[i])
 
-    print(len(hi))
-    print(len(hi_filtered))
+    """ pripare data for render  """
+    help_data = {
+        "wnpp": [],
+        "gift": [],
+        "testing-autorm": [],
+        "no-testing": [],
+        "infra": [],
+        "rfs": []
+    }
 
-    """ display the filtered data related info """
     for item in hi_filtered:
-        if item["type"] == "wnpp":
-            # puts " - #{r['source']} - https://bugs.debian.org/#{r['wnppbug']} - #{wnpptype(r['wnpptype'])}"
-            print("- {} - #https://bugs.debian.org/#{} - #bug type {} ".format(item['source'], item['wnppbug'], item['wnpptype']))
-        elif item["type"] == "gift":
-            # puts " - #{r['package']} - https://bugs.debian.org/#{r['bug']} - #{r['title']}"
-            print("- {} - https://bugs.debian.org/#{} - #{} ".format(item['package'], item['bug'],
-                                                                           item['title']))
-        elif item["type"] == "testing-autorm":
-            puts
-            " - #{r['source']} - https://tracker.debian.org/pkg/#{r['source']} - removal on #{Time.at(r['removal_time']).to_date.to_s}#{bugs}"
-            print("- {} - https://bugs.debian.org/#{} - #{} ".format(item['package'], item['bug'],
-                                                                    item['title']))
-        elif item["type"] == "rfs":
-            #puts " - #{r['source']} - https://bugs.debian.org/#{r['id']} - #{r['title']}"
-            print("- #{} - https://bugs.debian.org/#{} - #{} ".format(item['source'], item['id'],
-                                                                   item['title']))
-        elif item["type"] == "no-testing":
-            # puts " - #{r['package']} - https://tracker.debian.org/pkg/#{r['id']}"
-            print("- {} - https://bugs.debian.org/#{} ".format(item['package'], item['source']))
-        elif item["type"] == "infra":
-            pass
+       if item["type"] == "wnpp":
+                # puts " - #{r['source']} - https://bugs.debian.org/#{r['wnppbug']} - #{wnpptype(r['wnpptype'])}"
+                help_data["wnpp"].append(item)
+       elif item["type"] == "gift":
+                # puts " - #{r['package']} - https://bugs.debian.org/#{r['bug']} - #{r['title']}"
+                help_data["gift"].append(item)
+       elif item["type"] == "testing-autorm":
+                puts
+                help_data["testing-autorm"].append(item)
+       elif item["type"] == "rfs":
+                #puts " - #{r['source']} - https://bugs.debian.org/#{r['id']} - #{r['title']}"
+                help_data["rfs"].append(item)
+       elif item["type"] == "no-testing":
+                # puts " - #{r['package']} - https://tracker.debian.org/pkg/#{r['id']}"
+                help_data["no-testing"].append(item)
+       elif item["type"] == "infra":
+                help_data["infra"].append(item)
+
+    # print(len(hi_filtered))
+
+    print("Original hi %s" % (len(hi)))
+    print("Filtered hi %s " % (len(hi_filtered)))
+
+    for key,value in help_data.items():
+        for item in value:
+            if key == "wnpp":
+                #puts " - #{r['source']} - https://bugs.debian.org/#{r['wnppbug']} - #{wnpptype(r['wnpptype'])}"
+                print('Packages where help is needed, including orphaned ones (from WNPP):\n' )
+                print("- {} - https://bugs.debian.org/#{} - #{} ".format(item['source'], item['wnppbug'], item['wnpptype']))
+            if key == "gift":
+                #puts"- #{r['package']} - https://bugs.debian.org/#{r['bug']} - #{r['title']}"
+                print("- {} - https://bugs.debian.org/#{} - #{} ".format(item["package"], item["bug"], item['title']))
+            if key == "infra":
+                # puts" - #{r['package']} - https://bugs.debian.org/#{r['bug']} - #{r['title']}"
+                print("- {} - https://tracker.debian.org/pkg/#{} - # {}".format(item['package'], item['bug'], item['source']))
+                print( 'Bugs affecting Debian infrastructure (tagged \'newcomer\'):' 'New bugs affecting Debian infrastructure (tagged \'newcomer\'):')
+            if key == "no-testing":
+                # puts " - #{r['package']} - https://tracker.debian.org/pkg/#{r['source']}"
+                print("- {} - https://tracker.debian.org/pkg/#{}".format(item['package'], item['source']))
+            if key == "testing-autorm":
+                #puts " - #{r['source']} - https://tracker.debian.org/pkg/#{r['source']} - removal on #{Time.at(r['removal_time']).to_date.to_s}#{bugs}"
+                print("Packages going to be removed from Debian \'testing\' (the maintainer might need help):' : 'New packages going to be removed from Debian \'testing\' (the maintainer might need help):")
+                print("- {} - https://tracker.debian.org/pkg/#{r['source']} - removal on {} - #{bugs} - # {}".format(item['source'], item['removal_time'], item['bugs']))
+            if key == "rfs":
+                # puts " - #{r['source']} - https://bugs.debian.org/#{r['id']} - #{r['title']}"
+                print('Packages waiting for sponsorship (reviews/tests are also useful): :New packages waiting for sponsorship (reviews/tests are also useful):')
+                print("- {} - https://bugs.debian.org/#{} - # {}".format(item['source'], item['id'], item['title']))
+
+
 
 get_help_items()
