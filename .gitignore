@@ -76,3 +76,7 @@ webproject/settings/local.py
 
 manage.py
 webproject/wsgi.py
+
+simple/
+test.pyq
+**.xml
