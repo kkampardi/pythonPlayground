@@ -1,18 +1,17 @@
 import argparse
 from crawler import Crawler
 
-# initializing parameters
+# init parameters
 parser = argparse.ArgumentParser(description="Simple and unlimited sitemap generator")
 parser.add_argument('--url', action="store", default="", help="e.g. http://kkabardi.me")
-parser.add_argument('--exclude', action="store", default="", help="Exclude links passing them as a parameter, e.g 'symbol/info' will exclude https://www.finstead.com/symbol/info/ORCL")
-parser.add_argument('--no-verbose', action="store_true", default="", help="print verbose output")
-parser.add_argument('--output', action="store", default="sitemap.xml", help="File path for output, if file exists it will be overwritten")
+parser.add_argument('--exclude', action="store", default="", help="Exclude urls" )
+parser.add_argument('--no-verbose', action="store_true", default="", help="Prints verbose output")
+parser.add_argument('--output', action="store", default="sitemap.xml", help="Shows the output for the file path")
 
-# parsing parameters
+# parse parameters
 args = parser.parse_args()
 url = args.url.rstrip("/")
-
-found_links = []
+links_fetched = []
 
 # initializeing crawler
 crawler = Crawler(url, exclude=args.exclude, no_verbose=args.no_verbose);

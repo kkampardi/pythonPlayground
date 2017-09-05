@@ -7,13 +7,13 @@ class Crawler:
         self.url = url
         self.exclude = exclude
         self.no_verbose = no_verbose
-        self.found_links = []
+        self.links_fetched = []
         self.visited_links = []
 
     def start(self):
         self.crawl(self.url)
 
-        return self.found_links
+        return self.links_fetched
 
     def crawl(self, url):
         if not self.no_verbose:
@@ -24,12 +24,12 @@ class Crawler:
 
         pattern = '<a [^>]*href=[\'|"](.*?)[\'"].*?>'
 
-        found_links = re.findall(pattern, page)
+        links_fetched = re.findall(pattern, page)
         links = []
 
-        for link in found_links:
+        for link in links_fetched:
             self.add_url(link, links, self.exclude)
-            self.add_url(link, self.found_links)
+            self.add_url(link, self.links_fetched)
 
         for link in links:
             if link not in self.visited_links:
