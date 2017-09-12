@@ -54,6 +54,10 @@ def test_russian_optimized():
     print('Russian optimized algorithm took %f seconds' % (time.time() - start_time))
 
 
-
-test_russian()
-test_russian_optimized()
+##: if i run this from the terminal or as an actual file
+##: this will be true
+##: else if i import this from another module i dont want to run
+##: this script right away, as soon as i import it
+if __name__ == "__main__":
+    test_russian()
+    test_russian_optimized()

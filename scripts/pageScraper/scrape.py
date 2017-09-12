@@ -7,6 +7,8 @@ from urllib.parse import urlparse, urljoin
 from urllib.request import urlopen
 
 # Scrapes all links (<a></a>) with "href" attribute set, returns unique set
+
+
 def scrape_links(url):
     links = set()
     try:
