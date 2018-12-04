@@ -80,3 +80,6 @@ webproject/wsgi.py
 simple/
 test.pyq
 **.xml
+cat_pics
+.idea
+
