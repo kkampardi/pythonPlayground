@@ -1,5 +1,9 @@
 import os
+import collections
 
+
+SearchResult = collections.namedtuple('SearchResult',
+									  'file, line, text')
 
 def main():
 	print_header()
@@ -18,7 +22,11 @@ def main():
 	matches = search_folders(folder, text)
 	if matches:
 		for m in matches:
-			print(m)
+			print('-------Match-------')
+			print('File: %s' %m.file)
+			print('Line: %s' %m.line)
+			print('Text: %s' %m.text.rstrip())
+			print('')
 
 
 def print_header():
@@ -49,7 +57,7 @@ def get_search_text_from_user():
 
 def search_folders(folder, text):
 	"""
-	    given a specific folder if finds all the files in it
+		given a specific folder if finds all the files in it
 	"""
 	all_matches = []
 	# get all the items inside the folder
@@ -71,9 +79,12 @@ def search_file(filename, search_text):
 	matches = []
 
 	with open(filename, 'r', encoding='utf-8') as fin:
+		line_num = 0
 		for line in fin:
+			line_num += 1
 			if line.lower().find(search_text) >= 0:
-				matches.append(line)
+				m = SearchResult(line=line_num, file=filename, text=line)
+				matches.append(m)
 	return matches
 
 if __name__ == '__main__':
