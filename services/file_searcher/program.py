@@ -66,11 +66,13 @@ def search_folders(folder, text):
 	# skip the dir items in the folder
 	for item in items:
 		full_item = os.path.join(folder, item)
-		print(full_item)
 		if os.path.isdir(full_item):
-			continue
-		matches = search_file(full_item, text)
-		all_matches.extend(matches)
+			# search for file items in subfolder
+			matches = search_folders(full_item, text)
+			all_matches.extend(matches)
+		else:
+			matches = search_file(full_item, text)
+			all_matches.extend(matches)
 
 	return all_matches
 
